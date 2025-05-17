@@ -5,6 +5,7 @@ const {
   DB_PSQL_HOST, DB_PSQL_PORT, DB_PSQL_USERNAME,
   DB_PSQL_DATABASE,
   DB_PSQL_REPLICA1,
+  DB_PSQL_PASSWORD,
 } = process.env;
 
 const appEnv = (process.env.APP_ENV || 'development')
@@ -22,6 +23,7 @@ const defaultConfig = {
   DB_PSQL_PORT,
   DB_PSQL_DATABASE,
   DB_PSQL_USERNAME,
+  DB_PSQL_PASSWORD,
 };
 
 
