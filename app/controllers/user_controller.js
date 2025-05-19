@@ -47,7 +47,7 @@ class UserController {
                   message: 'User already exists! Try Login'
                 });
               }
-              const isUserNameTaken = User.findOne({
+              const isUserNameTaken = await User.findOne({
                 where: {user_name: userName}
               });
               if(isUserNameTaken) {
@@ -76,7 +76,7 @@ class UserController {
 
         } catch(error){
             LogFactory.getLogger().error('Error while signing up', error);
-            return res.status(422).json({
+            return res.status(500).json({
                 message: 'Something went wrong !!'
             });
         }
@@ -100,6 +100,10 @@ class UserController {
             message: 'OTP sent successfully'
           });
         }
+
+        res.status(422).json({
+          message: 'Something went wrong'
+        });
       }catch(error){
         LogFactory.getLogger().error('Error while requestResetPassword', error);
         return res.json(error);
@@ -130,6 +134,41 @@ class UserController {
         })
       }catch(error){
         LogFactory.getLogger().error('Error while verifying Otp', error);
+        return res.json(error);
+      }
+    }
+
+    async updatePassword(req, res, next){
+      try{
+        const userId = req.query.user_id;
+        const user = await User.findOne({
+          where: {id: userId}
+        });
+        const updatedPassword = req.body.password;
+        const hashedPassword = bcrypt.hashSync(updatedPassword);
+        if(!user){
+          return res.status(400).json({
+            message: 'User does not exist'
+          })
+        }
+        const isUserUpdated = await User.update({
+          password: hashedPassword
+        },
+        {
+          where: {
+            id: userId
+          }
+        });
+        if(isUserUpdated[0] === 1){
+          return res.status(200).json({
+            message: 'Password updated successfully'
+          });
+        }
+        return res.status(404).json({
+          message: 'Something went wrong'
+        });
+      }catch(error){
+        LogFactory.getLogger().error('Error while updating password', error);
         return res.json(error);
       }
     }

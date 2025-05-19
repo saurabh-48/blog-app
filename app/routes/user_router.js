@@ -8,5 +8,6 @@ userRouter.route('/login').post(userController.login);
 userRouter.route('/signup').post(userController.signUp);
 userRouter.route('/reset-password').post(userController.requestResetPassword);
 userRouter.route('/verify-otp').post(userController.verifyOtp);
+userRouter.route('/update-new-password').patch(userController.updatePassword);
 
 export default userRouter;
