@@ -5,16 +5,20 @@ class BlogController{
 
     async addBlog(req, res, next){
         const userId = req.query.user_id;
+        console.log('File Config',req.file);
         if(!userId){
             return res.status(401).json({
                 message: 'User not found!'
             });
         }
+        let imageUrl
+        if(req.file){
+            imageUrl = req.file?.path;
+        }
         const {
             title,
             description,
             location,
-            image_url: imageUrl,
         } = req.body;
 
         try {
@@ -76,6 +80,10 @@ class BlogController{
             })
         };
         return res.status(200).json(blog);
+    }
+
+    async checkUpload(req, res, next){
+        res.json(req.file);
     }
 }
 
