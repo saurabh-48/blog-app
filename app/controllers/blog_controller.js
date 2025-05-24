@@ -4,11 +4,10 @@ import Blog from "../models/blog.js";
 class BlogController{
 
     async addBlog(req, res, next){
-        const userId = req.query.user_id;
-        console.log('File Config',req.file);
+        const userId = req.user_id;
         if(!userId){
             return res.status(401).json({
-                message: 'User not found!'
+                message: 'User not authenticated'
             });
         }
         let imageUrl
@@ -42,10 +41,10 @@ class BlogController{
 
     async getBlogs(req, res, next){
         try {
-            const userId = req.query.user_id;
+            const userId = req.user_id;
             if(!userId){
                 return res.status(401).json({
-                    message: 'User not found!'
+                    message: 'User not authenticated'
                 });
             }
             const blogs = await Blog.findAll({
@@ -61,10 +60,10 @@ class BlogController{
     }
 
     async getBlogById(req, res, next){
-        const userId = req.query.user_id;
+        const userId = req.user_id;
         if(!userId){
             return res.status(401).json({
-                message: 'User not found!'
+                message: 'User not authenticated'
             });
         }
         const blogId = req.params.id;
@@ -80,10 +79,6 @@ class BlogController{
             })
         };
         return res.status(200).json(blog);
-    }
-
-    async checkUpload(req, res, next){
-        res.json(req.file);
     }
 }
 

@@ -2,6 +2,7 @@ import { LogFactory } from '../../lib/logger.js';
 import User from '../models/user.js';
 import bcrypt from 'bcryptjs';
 import UserService from '../services/user_service.js';
+import jwt from 'jsonwebtoken';
 
 class UserController {
 
@@ -21,8 +22,12 @@ class UserController {
             message: 'Incorrect password !!'
           });
         }
+        const accessToken = jwt.sign({user_id: exitingUser.id}, process.env.TOKEN_SECRET, {
+          expiresIn: '1h'
+        });
         return res.status(200).json({
-          message: 'Successfully logged in !!'
+          message: 'Successfully logged in !!',
+          access_token: accessToken
         });
     }
 
@@ -84,7 +89,12 @@ class UserController {
 
     async requestResetPassword(req, res, next){
       try{
-        const userId = req.query.user_id;
+        const userId = req.user_id;
+        if(!userId){
+          return res.status(401).json({
+              message: 'User not authenticated'
+          });
+      }
         const userService = new UserService();
         const user = await User.findOne({
           where: {id: userId}
@@ -112,16 +122,13 @@ class UserController {
 
     async verifyOtp(req, res, next){
       try{
-        const userId = req.query.user_id;
+        const userId = req.user_id;
+        if(!userId){
+          return res.status(401).json({
+              message: 'User not authenticated'
+          });
+      }
         const userService = new UserService();
-        const user = await User.findOne({
-          where: {id: userId}
-        });
-        if(!user){
-          return res.status(400).json({
-            message: 'User does not exist'
-          })
-        }
         const otpVerified = await userService.verifyOtp(req.body.otp, userId);
         if(otpVerified){
             return res.status(200).json({
@@ -140,17 +147,14 @@ class UserController {
 
     async updatePassword(req, res, next){
       try{
-        const userId = req.query.user_id;
-        const user = await User.findOne({
-          where: {id: userId}
-        });
+        const userId = req.user_id;
+        if(!userId){
+          return res.status(401).json({
+              message: 'User not authenticated'
+          });
+      }
         const updatedPassword = req.body.password;
         const hashedPassword = bcrypt.hashSync(updatedPassword);
-        if(!user){
-          return res.status(400).json({
-            message: 'User does not exist'
-          })
-        }
         const isUserUpdated = await User.update({
           password: hashedPassword
         },
